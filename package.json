@@ -1,0 +1,43 @@
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "fetch:banners": "node ./scripts/fetch-banners.mjs"
+  },
+  "dependencies": {
+    "@headlessui/react": "^1.7.19",
+    "@reduxjs/toolkit": "^1.9.7",
+    "axios": "^1.11.0",
+    "clsx": "^1.2.1",
+    "date-fns": "^2.30.0",
+    "framer-motion": "^10.18.0",
+    "lucide-react": "^0.263.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.62.0",
+    "react-hot-toast": "^2.6.0",
+    "react-redux": "^8.1.3",
+    "react-router-dom": "^6.30.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.33.0",
+    "@tailwindcss/postcss": "^4.1.12",
+    "@tailwindcss/vite": "^4.1.12",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.7.0",
+    "eslint": "^9.16.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-react-refresh": "^0.3.5",
+    "globals": "^16.3.0",
+    "tailwindcss": "^4.1.0",
+    "vite": "^7.1.2"
+  }
+}

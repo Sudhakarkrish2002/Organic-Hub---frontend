@@ -1,0 +1,11 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  background: #16a34a;
+  color: #fff;
+}
+
+

@@ -1,0 +1,19 @@
+/* src/styles/globals.css */
+@import "tailwindcss";
+
+/* Essential custom styles only */
+.font-display {
+  font-family: 'Playfair Display', serif;
+}
+
+.font-heading {
+  font-family: 'Inter', sans-serif;
+}
+
+.font-body {
+  font-family: 'Inter', sans-serif;
+}
+
+.font-accent {
+  font-family: 'Source Sans Pro', sans-serif;
+}
