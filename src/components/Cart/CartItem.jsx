@@ -2,18 +2,30 @@ import React from 'react'
 import { Trash2, Minus, Plus } from 'lucide-react'
 import { useDispatch } from 'react-redux'
 import { removeFromCart, updateQuantity } from '@/store/slices/cartSlice'
+import { aiImageUrl } from '@/utils/helpers'
 
 const CartItem = ({ item }) => {
   const dispatch = useDispatch()
 
+  const getItemId = (item) => {
+    return item._id || item.id
+  }
+
   const handleRemove = () => {
-    dispatch(removeFromCart(item._id))
+    dispatch(removeFromCart(getItemId(item)))
   }
 
   const handleQuantityChange = (newQuantity) => {
     if (newQuantity > 0) {
-      dispatch(updateQuantity({ id: item._id, quantity: newQuantity }))
+      dispatch(updateQuantity({ id: getItemId(item), quantity: newQuantity }))
     }
+  }
+
+  // Handle different image properties
+  const getProductImage = (item) => {
+    if (item.image) return item.image
+    if (item.images && item.images.length > 0) return item.images[0]
+    return aiImageUrl('organic product placeholder, simple minimal background', 600, 600, 1)
   }
 
   return (
@@ -21,9 +33,15 @@ const CartItem = ({ item }) => {
       {/* Product Image */}
       <div className="flex-shrink-0 self-center sm:self-auto">
         <img 
-          src={item.image} 
+          src={getProductImage(item)} 
           alt={item.name} 
-          className="h-16 w-16 sm:h-20 sm:w-20 object-cover rounded-lg sm:rounded-xl border border-green-100" 
+          className="h-16 w-16 sm:h-20 sm:w-20 object-cover rounded-lg sm:rounded-xl border border-green-100"
+          loading="lazy"
+          referrerPolicy="no-referrer"
+          onError={(e) => {
+            e.currentTarget.onerror = null
+            e.currentTarget.src = aiImageUrl('organic product placeholder, simple minimal background', 600, 600, 1)
+          }}
         />
       </div>
       

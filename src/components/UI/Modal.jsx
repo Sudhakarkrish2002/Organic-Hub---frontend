@@ -1,5 +1,16 @@
 import React from 'react'
 
+/**
+ * Modal
+ *
+ * Props:
+ * - isOpen: boolean - visibility control
+ * - onClose: () => void - close callback
+ * - title?: string - optional header title
+ * - children: ReactNode - modal content
+ * - footer?: ReactNode - optional footer actions
+ */
+
 const Modal = ({ open, onClose, title, children }) => {
   if (!open) return null
   return (

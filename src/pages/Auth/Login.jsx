@@ -187,7 +187,7 @@ const Login = () => {
               to="/signup"
               className="font-medium text-green-600 hover:text-green-500 font-accent transition-colors duration-200"
             >
-              Don't have an account?
+              Signup
             </Link>
           </div>
         </motion.form>

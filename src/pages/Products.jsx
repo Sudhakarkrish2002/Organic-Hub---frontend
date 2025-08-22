@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Search, Filter, Star, ShoppingCart, Heart, Leaf, X } from 'lucide-react'
+import { Search, Filter } from 'lucide-react'
 import { aiImageUrl } from '@/utils/helpers'
+import useCart from '@/hooks/useCart.jsx'
 import ProductGrid from '@/components/Product/ProductGrid'
 import ProductCard from '@/components/Product/ProductCard'
+import useWishlist from '@/hooks/useWishlist'
 
 const Products = () => {
+  const { addItemToCart, isItemInCart } = useCart()
+  const { toggleWishlist } = useWishlist()
   const [products, setProducts] = useState([])
   const [filteredProducts, setFilteredProducts] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
@@ -17,7 +21,7 @@ const Products = () => {
   // Sample organic products with AI images
   const sampleProducts = [
     {
-      id: 1,
+      _id: 1,
       name: 'Fresh Organic Tomatoes',
       category: 'vegetables',
       price: 120,
@@ -31,7 +35,7 @@ const Products = () => {
       tags: ['organic', 'fresh', 'antioxidants']
     },
     {
-      id: 2,
+      _id: 2,
       name: 'Organic Bananas',
       category: 'fruits',
       price: 80,
@@ -45,7 +49,7 @@ const Products = () => {
       tags: ['organic', 'energy', 'potassium']
     },
     {
-      id: 3,
+      _id: 3,
       name: 'Fresh Spinach Leaves',
       category: 'vegetables',
       price: 60,
@@ -59,7 +63,7 @@ const Products = () => {
       tags: ['organic', 'iron', 'vitamins']
     },
     {
-      id: 4,
+      _id: 4,
       name: 'Organic Apples',
       category: 'fruits',
       price: 200,
@@ -73,7 +77,7 @@ const Products = () => {
       tags: ['organic', 'fiber', 'antioxidants']
     },
     {
-      id: 5,
+      _id: 5,
       name: 'Fresh Carrots',
       category: 'vegetables',
       price: 90,
@@ -87,7 +91,7 @@ const Products = () => {
       tags: ['organic', 'beta-carotene', 'fiber']
     },
     {
-      id: 6,
+      _id: 6,
       name: 'Organic Oranges',
       category: 'fruits',
       price: 150,
@@ -101,7 +105,7 @@ const Products = () => {
       tags: ['organic', 'vitamin-c', 'antioxidants']
     },
     {
-      id: 7,
+      _id: 7,
       name: 'Fresh Broccoli',
       category: 'vegetables',
       price: 100,
@@ -115,7 +119,7 @@ const Products = () => {
       tags: ['organic', 'vitamins', 'minerals']
     },
     {
-      id: 8,
+      _id: 8,
       name: 'Organic Strawberries',
       category: 'fruits',
       price: 180,
@@ -129,7 +133,7 @@ const Products = () => {
       tags: ['organic', 'antioxidants', 'vitamin-c']
     },
     {
-      id: 9,
+      _id: 9,
       name: 'Fresh Cauliflower',
       category: 'vegetables',
       price: 85,
@@ -143,7 +147,7 @@ const Products = () => {
       tags: ['organic', 'anti-inflammatory', 'fiber']
     },
     {
-      id: 10,
+      _id: 10,
       name: 'Organic Grapes',
       category: 'fruits',
       price: 160,
@@ -157,7 +161,7 @@ const Products = () => {
       tags: ['organic', 'antioxidants', 'natural-sugar']
     },
     {
-      id: 11,
+      _id: 11,
       name: 'Fresh Bell Peppers',
       category: 'vegetables',
       price: 120,
@@ -171,7 +175,7 @@ const Products = () => {
       tags: ['organic', 'vitamins', 'antioxidants']
     },
     {
-      id: 12,
+      _id: 12,
       name: 'Organic Mangoes',
       category: 'fruits',
       price: 250,
@@ -183,6 +187,177 @@ const Products = () => {
       inStock: true,
       discount: 17,
       tags: ['organic', 'tropical', 'vitamins']
+    },
+    // Dairy
+    {
+      _id: 13,
+      name: 'Organic Whole Milk (1L)',
+      category: 'dairy',
+      price: 70,
+      originalPrice: 85,
+      rating: 4.7,
+      reviews: 210,
+      image: aiImageUrl('glass bottle of organic whole milk, minimal aesthetic, soft natural lighting, condensation, studio photography', 600, 600, 401),
+      description: 'Creamy farm-fresh organic whole milk, antibiotic-free and hormone-free',
+      inStock: true,
+      discount: 18,
+      tags: ['dairy', 'organic', 'calcium']
+    },
+    {
+      _id: 14,
+      name: 'Farm Fresh Yogurt (500g)',
+      category: 'dairy',
+      price: 65,
+      originalPrice: 80,
+      rating: 4.6,
+      reviews: 164,
+      image: aiImageUrl('organic plain yogurt in ceramic bowl with spoon, creamy texture, soft daylight food photography', 600, 600, 402),
+      description: 'Thick and creamy probiotic-rich organic yogurt',
+      inStock: true,
+      discount: 19,
+      tags: ['dairy', 'probiotics', 'organic']
+    },
+    {
+      _id: 15,
+      name: 'Grass-Fed Butter (200g)',
+      category: 'dairy',
+      price: 160,
+      originalPrice: 190,
+      rating: 4.8,
+      reviews: 132,
+      image: aiImageUrl('organic grass-fed butter block on parchment, golden color, rustic wooden board, soft light', 600, 600, 403),
+      description: 'Rich, golden butter made from grass-fed organic milk',
+      inStock: true,
+      discount: 16,
+      tags: ['dairy', 'grass-fed', 'healthy-fats']
+    },
+    {
+      _id: 16,
+      name: 'Organic Paneer (200g)',
+      category: 'dairy',
+      price: 95,
+      originalPrice: 120,
+      rating: 4.5,
+      reviews: 98,
+      image: aiImageUrl('fresh organic paneer cubes on a plate, soft texture, bright clean lighting, food photography', 600, 600, 404),
+      description: 'Soft, fresh organic paneer with high protein content',
+      inStock: true,
+      discount: 21,
+      tags: ['dairy', 'protein', 'fresh']
+    },
+    // Grains
+    {
+      _id: 17,
+      name: 'Organic Brown Rice (1kg)',
+      category: 'grains',
+      price: 140,
+      originalPrice: 170,
+      rating: 4.7,
+      reviews: 187,
+      image: aiImageUrl('organic brown rice grains in a bowl, earthy tones, natural light, high detail', 600, 600, 405),
+      description: 'Whole-grain brown rice rich in fiber and nutrients',
+      inStock: true,
+      discount: 18,
+      tags: ['grains', 'fiber', 'whole-grain']
+    },
+    {
+      _id: 18,
+      name: 'Organic Quinoa (500g)',
+      category: 'grains',
+      price: 220,
+      originalPrice: 260,
+      rating: 4.6,
+      reviews: 143,
+      image: aiImageUrl('raw organic quinoa seeds in glass jar, clean minimal style, studio lighting', 600, 600, 406),
+      description: 'High-protein organic quinoa, complete plant protein source',
+      inStock: true,
+      discount: 15,
+      tags: ['grains', 'protein', 'gluten-free']
+    },
+    {
+      _id: 19,
+      name: 'Whole Wheat Flour (Atta) 1kg',
+      category: 'grains',
+      price: 70,
+      originalPrice: 90,
+      rating: 4.5,
+      reviews: 165,
+      image: aiImageUrl('organic whole wheat flour in bowl with grains, rustic kitchen scene, soft daylight', 600, 600, 407),
+      description: 'Stone-ground organic whole wheat flour for healthier rotis and baking',
+      inStock: true,
+      discount: 22,
+      tags: ['grains', 'whole-wheat', 'fiber']
+    },
+    {
+      _id: 20,
+      name: 'Rolled Oats (1kg)',
+      category: 'grains',
+      price: 180,
+      originalPrice: 210,
+      rating: 4.7,
+      reviews: 121,
+      image: aiImageUrl('organic rolled oats in bowl with spoon, cozy breakfast aesthetic, high detail', 600, 600, 408),
+      description: 'Heart-healthy organic rolled oats for wholesome breakfast bowls',
+      inStock: true,
+      discount: 14,
+      tags: ['grains', 'fiber', 'breakfast']
+    },
+    // Natural
+    {
+      _id: 21,
+      name: 'Raw Forest Honey (500g)',
+      category: 'natural',
+      price: 320,
+      originalPrice: 380,
+      rating: 4.8,
+      reviews: 204,
+      image: aiImageUrl('jar of raw organic honey with honey dipper, golden glow, sunlight, high detail', 600, 600, 409),
+      description: 'Unprocessed raw honey rich in enzymes and antioxidants',
+      inStock: true,
+      discount: 16,
+      tags: ['natural', 'antioxidants', 'raw']
+    },
+    {
+      _id: 22,
+      name: 'Cold-Pressed Coconut Oil (500ml)',
+      category: 'natural',
+      price: 280,
+      originalPrice: 330,
+      rating: 4.7,
+      reviews: 149,
+      image: aiImageUrl('clear bottle of cold pressed organic coconut oil, coconut halves, clean minimal scene, soft light', 600, 600, 410),
+      description: 'Pure cold-pressed coconut oil for cooking and wellness',
+      inStock: true,
+      discount: 15,
+      tags: ['natural', 'cold-pressed', 'healthy-fats']
+    },
+    {
+      _id: 23,
+      name: 'Organic Jaggery (800g)',
+      category: 'natural',
+      price: 180,
+      originalPrice: 220,
+      rating: 4.6,
+      reviews: 112,
+      image: aiImageUrl('organic jaggery blocks on a plate, rustic look, warm tones, high detail', 600, 600, 411),
+      description: 'Natural unrefined cane sweetener rich in minerals',
+      inStock: true,
+      discount: 18,
+      tags: ['natural', 'unrefined', 'minerals']
+    },
+    {
+      _id: 24,
+      name: 'Raw Almonds (500g)',
+      category: 'natural',
+      price: 420,
+      originalPrice: 480,
+      rating: 4.9,
+      reviews: 256,
+      image: aiImageUrl('raw organic almonds in bowl, top-down, clean background, studio lighting, high detail', 600, 600, 412),
+      description: 'Crunchy raw almonds packed with healthy fats and vitamin E',
+      inStock: true,
+      discount: 12,
+      tags: ['natural', 'nuts', 'vitamin-e']
     }
   ]
 
@@ -242,13 +417,11 @@ const Products = () => {
   }, [searchTerm, selectedCategory, priceRange, sortBy, products])
 
   const handleAddToCart = (product) => {
-    // TODO: Implement add to cart functionality
-    console.log('Added to cart:', product.name)
+    addItemToCart(product, 1)
   }
 
   const handleWishlist = (product) => {
-    // TODO: Implement wishlist functionality
-    console.log('Added to wishlist:', product.name)
+    toggleWishlist(product)
   }
 
   const clearFilters = () => {
@@ -418,7 +591,7 @@ const Products = () => {
           <ProductGrid>
             {filteredProducts.map((product, index) => (
               <motion.div
-                key={product.id}
+                key={product._id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}

@@ -1,11 +1,14 @@
 // src/pages/Home.jsx
 import React from 'react'
 import { motion } from 'framer-motion'
-import { ArrowRight, Leaf, Star, Truck, Shield } from 'lucide-react'
+import { ArrowRight, Leaf, Star, Truck, Shield, ShoppingCart } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { aiImageUrl } from '@/utils/helpers'
+import useCart from '@/hooks/useCart.jsx'
 
 const Home = () => {
+  const { addItemToCart, isItemInCart } = useCart()
+
   const categories = [
     { name: 'Vegetables', icon: '🥦', path: '/products?category=vegetables', img: aiImageUrl('fresh organic vegetables in basket, high detail, natural light', 600, 400, 101) },
     { name: 'Fruits', icon: '🍎', path: '/products?category=fruits', img: aiImageUrl('fresh organic fruits assortment, apples berries citrus, colorful, realistic', 600, 400, 102) },
@@ -131,7 +134,7 @@ const Home = () => {
                 viewport={{ once: true }}
                 className="text-center group"
               >
-                <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 sm:p-6 rounded-xl sm:rounded-2xl mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300">
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-4 sm:p-6 rounded-xl sm:rounded-2xl mb-3 sm:mb-4 group-hover:scale-110 transition-transform duration-300 flex items-center justify-center">
                   {feature.icon}
                 </div>
                 <h3 className="text-lg sm:text-xl font-heading text-green-800 mb-2">{feature.title}</h3>
@@ -162,35 +165,36 @@ const Home = () => {
           
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-6 lg:gap-8">
             {categories.map((category, index) => (
-              <motion.a
+              <motion.div
                 key={category.name}
-                href={category.path}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
                 className="group"
               >
-                <div className="bg-white border-2 border-green-100 rounded-xl sm:rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105">
-                  <div className="aspect-[4/3] w-full overflow-hidden">
-                    <img
-                      src={category.img}
-                      alt={category.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      loading="lazy"
-                      referrerPolicy="no-referrer"
-                      onError={(e) => {
-                        e.currentTarget.onerror = null
-                        e.currentTarget.src = aiImageUrl('organic category placeholder, simple minimal background', 600, 400, 5)
-                      }}
-                    />
+                <Link to={category.path} className="block">
+                  <div className="bg-white border-2 border-green-100 rounded-xl sm:rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105">
+                    <div className="aspect-[4/3] w-full overflow-hidden">
+                      <img
+                        src={category.img}
+                        alt={category.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        loading="lazy"
+                        referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          e.currentTarget.onerror = null
+                          e.currentTarget.src = aiImageUrl('organic category placeholder, simple minimal background', 600, 400, 5)
+                        }}
+                      />
+                    </div>
+                    <div className="p-3 sm:p-4 md:p-6 text-center">
+                      <div className="text-2xl sm:text-3xl md:text-4xl mb-2 sm:mb-3">{category.icon}</div>
+                      <div className="font-heading text-sm sm:text-base md:text-lg lg:text-xl text-green-800">{category.name}</div>
+                    </div>
                   </div>
-                  <div className="p-3 sm:p-4 md:p-6 text-center">
-                    <div className="text-2xl sm:text-3xl md:text-4xl mb-2 sm:mb-3">{category.icon}</div>
-                    <div className="font-heading text-sm sm:text-base md:text-lg lg:text-xl text-green-800">{category.name}</div>
-                  </div>
-                </div>
-              </motion.a>
+                </Link>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -215,22 +219,61 @@ const Home = () => {
           </motion.div>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
-            {[1, 2, 3, 4].map((i, index) => (
+            {[
+              {
+                _id: 'home-1',
+                name: 'Fresh Organic Tomatoes',
+                price: 120,
+                image: aiImageUrl('fresh organic red tomatoes, high quality, natural lighting, studio photography', 600, 600, 401)
+              },
+              {
+                _id: 'home-2',
+                name: 'Organic Bananas',
+                price: 80,
+                image: aiImageUrl('organic yellow bananas, fresh, natural, high detail photography', 600, 600, 402)
+              },
+              {
+                _id: 'home-3',
+                name: 'Fresh Spinach Leaves',
+                price: 60,
+                image: aiImageUrl('fresh organic spinach leaves, green, crisp, macro photography', 600, 600, 403)
+              },
+              {
+                _id: 'home-4',
+                name: 'Organic Apples',
+                price: 200,
+                image: aiImageUrl('organic red apples, fresh, crisp, natural lighting, food photography', 600, 600, 404)
+              }
+            ].map((product, index) => (
               <motion.div
-                key={i}
+                key={product._id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
                 className="bg-white border-2 border-green-100 rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105"
               >
-                <div className="bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg sm:rounded-xl mb-3 sm:mb-4 aspect-[4/3] flex items-center justify-center">
-                  <div className="text-3xl sm:text-4xl md:text-5xl">🥬</div>
+                <div className="bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg sm:rounded-xl mb-3 sm:mb-4 aspect-[4/3] overflow-hidden">
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                    referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null
+                      e.currentTarget.src = aiImageUrl('organic product placeholder, simple minimal background', 600, 600, 405)
+                    }}
+                  />
                 </div>
-                <div className="font-heading text-lg sm:text-xl text-green-800 mb-2 sm:mb-3">Organic Item {i}</div>
-                <div className="font-accent text-xl sm:text-2xl text-green-700 mb-3 sm:mb-4">₹{i * 100}</div>
-                <button className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 sm:py-3 px-4 sm:px-6 rounded-lg sm:rounded-xl transition-colors duration-200 font-accent text-sm sm:text-base">
-                  Add to Cart
+                <div className="font-heading text-lg sm:text-xl text-green-800 mb-2 sm:mb-3">{product.name}</div>
+                <div className="font-accent text-xl sm:text-2xl text-green-700 mb-3 sm:mb-4">₹{product.price}</div>
+                <button
+                  onClick={() => addItemToCart(product, 1)}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 sm:py-3 px-4 sm:px-6 rounded-lg sm:rounded-xl transition-colors duration-200 font-accent text-sm sm:text-base flex items-center justify-center gap-2"
+                >
+                  <ShoppingCart className="w-4 h-4" />
+                  {isItemInCart(product._id) ? 'Added' : 'Add to Cart'}
                 </button>
               </motion.div>
             ))}

@@ -1,5 +1,18 @@
 import React from 'react'
 
+/**
+ * Input
+ *
+ * Props:
+ * - label?: string - optional top label
+ * - type?: string - input type (text, email, password, etc.)
+ * - value: string - controlled value
+ * - onChange: (e) => void - change handler
+ * - placeholder?: string - input placeholder
+ * - className?: string - extra classes for input element
+ * - required?: boolean - mark as required for forms
+ */
+
 const Input = ({ label, error, className = '', ...props }) => {
   return (
     <label className={`flex flex-col gap-1 ${className}`}>

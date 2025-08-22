@@ -14,7 +14,8 @@ const cartSlice = createSlice({
   reducers: {
     addToCart: (state, action) => {
       const { product, quantity = 1 } = action.payload
-      const existingItem = state.items.find(item => item._id === product._id)
+      const productId = product._id || product.id
+      const existingItem = state.items.find(item => (item._id || item.id) === productId)
       
       if (existingItem) {
         existingItem.quantity += quantity
@@ -26,13 +27,14 @@ const cartSlice = createSlice({
     },
     
     removeFromCart: (state, action) => {
-      state.items = state.items.filter(item => item._id !== action.payload)
+      const productId = action.payload
+      state.items = state.items.filter(item => (item._id || item.id) !== productId)
       cartSlice.caseReducers.calculateTotals(state)
     },
     
     updateQuantity: (state, action) => {
       const { id, quantity } = action.payload
-      const item = state.items.find(item => item._id === id)
+      const item = state.items.find(item => (item._id || item.id) === id)
       if (item) {
         item.quantity = quantity
       }
@@ -64,7 +66,7 @@ const cartSlice = createSlice({
           
           totalPrice += discount.finalPrice
           totalSavings += discountAmount
-          bulkDiscounts[item._id] = discount
+          bulkDiscounts[item._id || item.id] = discount
         } else {
           totalPrice += originalPrice
         }

@@ -1,5 +1,17 @@
 // src/components/UI/Button.jsx
 import React from 'react'
+
+/**
+ * Button
+ *
+ * Props:
+ * - children: ReactNode - button content
+ * - className?: string - extra tailwind utility classes
+ * - variant?: 'primary' | 'outline' | 'ghost' - visual style
+ * - size?: 'sm' | 'md' | 'lg' - sizing preset
+ * - disabled?: boolean - disabled state
+ * - onClick?: (e) => void - click handler
+ */
 import { motion } from 'framer-motion'
 
 const Button = ({ 

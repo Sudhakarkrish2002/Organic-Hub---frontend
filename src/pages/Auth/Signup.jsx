@@ -3,7 +3,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { motion } from 'framer-motion'
 import { Eye, EyeOff, Mail, Lock, User, Phone, Leaf } from 'lucide-react'
-import { login } from '@/store/slices/authSlice'
+import authAPI from '@/services/authAPI'
+import { useNotification } from '@/context/NotificationContext'
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -20,6 +21,7 @@ const Signup = () => {
   
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const { success, error: notifyError, showLoading, dismissLoading } = useNotification()
   
   const handleChange = (e) => {
     setFormData({
@@ -47,28 +49,30 @@ const Signup = () => {
       return
     }
     
+    const toastId = showLoading('Creating your account...')
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      // For demo purposes, create account and auto-login
-      if (formData.name && formData.email && formData.phone && formData.password) {
-        dispatch(login({
-          user: {
-            id: '1',
-            name: formData.name,
-            email: formData.email,
-            phone: formData.phone,
-            role: 'user'
-          },
-          token: 'demo-token'
-        }))
-        navigate('/')
-      } else {
-        setError('Please fill in all fields')
+      // Real API call
+      const payload = {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password
       }
+      await authAPI.signup(payload)
+      dismissLoading(toastId)
+      success('Account created. Please login to continue.')
+      navigate('/login')
     } catch (err) {
-      setError('Signup failed. Please try again.')
+      dismissLoading(toastId)
+      const status = err?.response?.status
+      const msg = err?.response?.data?.message
+      if (status === 409 || /exists|already/i.test(msg || '')) {
+        // User already exists → prompt to login instead of failing
+        success('Account already exists. Please login.')
+        navigate('/login')
+        return
+      }
+      notifyError(msg || 'Signup failed. Please try again.')
     } finally {
       setIsLoading(false)
     }

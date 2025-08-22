@@ -3,8 +3,9 @@ import { useSelector } from 'react-redux'
 import { motion } from 'framer-motion'
 import { ArrowRight, Leaf } from 'lucide-react'
 import { getSeasonalTheme } from '@/utils/seasonDetector'
-import { aiImageUrl, seasonalBannerAi } from '@/utils/helpers'
+import { seasonalBannerAi } from '@/utils/helpers'
 import Button from '../UI/Button'
+import { Link } from 'react-router-dom'
 
 const SeasonalHero = () => {
   const { currentSeason } = useSelector((state) => state.seasonal)
@@ -44,17 +45,12 @@ const SeasonalHero = () => {
   const content = seasonalContent[currentSeason] || seasonalContent.summer
   
   return (
-    <div className={`relative ${theme.background} section-padding overflow-hidden w-full`}>
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-10 left-10 text-4xl sm:text-5xl md:text-6xl animate-pulse">{content.icon}</div>
-        <div className="absolute top-32 right-20 text-3xl sm:text-4xl animate-bounce delay-300">{content.icon}</div>
-        <div className="absolute bottom-20 left-32 text-4xl sm:text-5xl animate-pulse delay-700">{content.icon}</div>
-      </div>
+    <div className={`relative ${theme.background} overflow-hidden w-full`}>
+      {/* Background removed for cleaner look */}
       
-      <div className="w-full container-padding relative z-10">
+      <div className="w-full px-6 sm:px-8 lg:px-12 xl:px-16 relative z-10">
         <div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 xl:gap-20 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Content */}
             <motion.div
               initial={{ opacity: 0, x: -50 }}
@@ -62,30 +58,34 @@ const SeasonalHero = () => {
               transition={{ duration: 0.8 }}
               className="text-center lg:text-left"
             >
-              <div className="flex items-center justify-center lg:justify-start mb-8">
-                <Leaf className="w-12 h-12 text-green-600 mr-4" />
-                <span className="text-green-700 font-accent text-xl sm:text-2xl">
+              <div className="flex items-center justify-center lg:justify-start mb-6">
+                <Leaf className="w-9 h-9 text-green-600 mr-3" />
+                <span className="text-green-700 font-accent text-lg sm:text-xl">
                   {currentSeason.charAt(0).toUpperCase() + currentSeason.slice(1)} Collection
                 </span>
               </div>
               
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-display text-green-800 mb-8 lg:mb-10 leading-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display text-green-800 mb-6 lg:mb-8 leading-tight">
                 {content.title}
               </h1>
               
-              <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl text-green-700 mb-10 lg:mb-12 leading-relaxed font-body max-w-2xl mx-auto lg:mx-0">
+              <p className="text-lg sm:text-xl md:text-2xl text-green-700 mb-8 lg:mb-10 leading-relaxed font-body max-w-2xl mx-auto lg:mx-0">
                 {content.subtitle}
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start">
-                <Button size="lg" className="group text-lg px-12 py-5">
-                  Shop {currentSeason} Collection
-                  <ArrowRight className="w-6 h-6 group-hover:translate-x-2 transition-transform duration-300" />
-                </Button>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+                <Link to="/seasonal#season-products">
+                  <Button size="sm" className="group text-sm px-5 py-2.5">
+                    Shop {currentSeason} Collection
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
+                  </Button>
+                </Link>
                 
-                <Button variant="outline" size="lg" className="text-lg px-12 py-5">
-                  View All Products
-                </Button>
+                <Link to="/products">
+                  <Button variant="outline" size="sm" className="text-sm px-5 py-2.5">
+                    View All Products
+                  </Button>
+                </Link>
               </div>
             </motion.div>
             
@@ -100,7 +100,7 @@ const SeasonalHero = () => {
                 <img
                   src={content.imageLocal}
                   alt={`${currentSeason} products`}
-                  className="w-full h-80 sm:h-96 md:h-[500px] lg:h-[600px] xl:h-[700px] object-cover"
+                  className="w-full h-72 sm:h-96 md:h-[480px] lg:h-[560px] object-cover"
                   onError={(e) => {
                     e.currentTarget.onerror = null
                     e.currentTarget.src = content.image
@@ -108,11 +108,11 @@ const SeasonalHero = () => {
                 />
                 
                 {/* Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent" />
                 
                 {/* Floating Badge */}
-                <div className="absolute top-8 right-8 bg-white rounded-2xl px-6 py-3 shadow-xl">
-                  <span className="text-lg font-accent text-green-800">
+                <div className="absolute top-6 right-6 bg-white rounded-2xl px-5 py-2.5 shadow-xl">
+                  <span className="text-base font-accent text-green-800">
                     Fresh {content.icon}
                   </span>
                 </div>

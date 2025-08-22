@@ -6,12 +6,14 @@ import ProductCard from '@/components/Product/ProductCard'
 import ProductFilters from '@/components/Product/ProductFilters'
 import ProductSearch from '@/components/Product/ProductSearch'
 import useProducts from '@/hooks/useProducts'
+import useWishlist from '@/hooks/useWishlist'
 import Button from '@/components/UI/Button'
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams()
   const [viewMode, setViewMode] = useState('grid')
   const [showFilters, setShowFilters] = useState(false)
+  const { toggleWishlist } = useWishlist()
   
   const category = searchParams.get('category')
   const search = searchParams.get('search')
@@ -78,6 +80,10 @@ const Products = () => {
       return prev
     })
     window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleWishlist = (product) => {
+    toggleWishlist(product)
   }
   
   return (
@@ -187,7 +193,7 @@ const Products = () => {
                 }
               >
                 {products.map((product) => (
-                  <ProductCard key={product._id} product={product} viewMode={viewMode} />
+                  <ProductCard key={product._id} product={product} viewMode={viewMode} onWishlist={handleWishlist} />
                 ))}
               </motion.div>
             ) : (
