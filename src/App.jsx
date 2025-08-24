@@ -3,15 +3,15 @@ import React from 'react'
 import { BrowserRouter as Router } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import { Toaster } from 'react-hot-toast'
-import { store } from './store'
-import AppRoutes from './routes/AppRoutes'
-import Header from './components/Layout/Header'
-import ScrollToTop from './components/Layout/ScrollToTop'
-import Footer from './components/Layout/Footer'
-import CartBottomBar from './components/Cart/CartBottomBar'
-import CartTopButton from './components/Cart/CartTopButton'
-import { NotificationProvider } from '@/context/NotificationContext'
-import { AuthProvider } from '@/context/AuthContext'
+import { store } from './core/store'
+import AppRoutes from './core/routes/AppRoutes'
+import Header from './shared/components/Header'
+import ScrollToTop from './shared/components/ScrollToTop'
+import Footer from './shared/components/Footer'
+import CartBottomBar from './features/cart/components/CartBottomBar'
+import CartTopButton from './features/cart/components/CartTopButton'
+import { NotificationProvider } from './shared/context/NotificationContext'
+import { AuthProvider } from './features/auth/context/AuthContext'
 import './styles/globals.css'
 
 function App() {
@@ -37,7 +37,7 @@ function App() {
             <Toaster
               position="top-right"
               toastOptions={{
-                duration: 4000,
+                duration: 2000,
                 style: {
                   background: '#ffffff',
                   color: '#166534',

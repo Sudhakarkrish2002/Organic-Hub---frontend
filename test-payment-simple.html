@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Razorpay Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #16a34a;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #15803d;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Razorpay Payment Test</h1>
+        <p>Testing Razorpay integration with a simple payment flow.</p>
+        
+        <button onclick="testPayment(100)">Test ₹100 Payment</button>
+        <button onclick="testPayment(500)">Test ₹500 Payment</button>
+        <button onclick="clearLog()">Clear Log</button>
+        
+        <div class="log" id="log"></div>
+    </div>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        const log = document.getElementById('log');
+        
+        function addLog(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            log.innerHTML += `[${timestamp}] ${message}\n`;
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        function clearLog() {
+            log.innerHTML = '';
+        }
+        
+        function testPayment(amount) {
+            addLog(`🚀 Starting payment test for ₹${amount}`);
+            
+            const options = {
+                key: 'rzp_test_1DP5mmOlF5G5ag',
+                amount: amount * 100, // Convert to paise
+                currency: 'INR',
+                name: 'Organic Hub',
+                description: 'Test Payment',
+                prefill: {
+                    name: 'Test User',
+                    email: 'test@example.com',
+                    contact: '9999999999'
+                },
+                theme: {
+                    color: '#16a34a'
+                },
+                handler: function(response) {
+                    addLog(`✅ Payment successful! Payment ID: ${response.razorpay_payment_id}`);
+                    alert('Payment successful! Check console for details.');
+                },
+                modal: {
+                    ondismiss: function() {
+                        addLog('❌ Payment modal dismissed');
+                    }
+                }
+            };
+            
+            addLog(`📋 Payment options: ${JSON.stringify({
+                key: options.key,
+                amount: options.amount,
+                currency: options.currency,
+                name: options.name
+            }, null, 2)}`);
+            
+            try {
+                const rzp = new Razorpay(options);
+                addLog('🎯 Opening Razorpay modal...');
+                rzp.open();
+                addLog('✅ Razorpay modal opened successfully');
+            } catch (error) {
+                addLog(`❌ Error: ${error.message}`);
+                alert('Payment initialization failed: ' + error.message);
+            }
+        }
+        
+        // Check if Razorpay is loaded
+        window.addEventListener('load', function() {
+            if (window.Razorpay) {
+                addLog('✅ Razorpay script loaded successfully');
+            } else {
+                addLog('❌ Razorpay script not loaded');
+            }
+        });
+    </script>
+</body>
+</html>
