@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ShoppingCart, User, Search, Menu, X, Leaf, LogOut, Package, Settings, Heart } from 'lucide-react'
 import { logout } from '@/store/slices/authSlice'
+import { useAuthContext } from '@/context/AuthContext'
 import Badge from '../UI/Badge'
 import NotificationBell from '../UI/NotificationBell'
 
@@ -15,12 +16,12 @@ const Header = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const location = useLocation()
-  const { isAuthenticated, user } = useSelector((state) => state.auth)
+  const { isAuthenticated, user, logout: logoutUser } = useAuthContext()
   const { totalItems } = useSelector((state) => state.cart)
   const { currentSeason } = useSelector((state) => state.seasonal)
   
   const handleLogout = () => {
-    dispatch(logout())
+    logoutUser()
     navigate('/')
     setIsMenuOpen(false)
     setIsUserMenuOpen(false)

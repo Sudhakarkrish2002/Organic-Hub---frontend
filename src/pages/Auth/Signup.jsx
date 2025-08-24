@@ -1,9 +1,12 @@
-import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { motion } from 'framer-motion'
-import { Eye, EyeOff, Mail, Lock, User, Phone, Leaf } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, User, Phone, Leaf, ShoppingCart } from 'lucide-react'
+import { login } from '@/store/slices/authSlice'
+import { useAuthContext } from '@/context/AuthContext'
 import authAPI from '@/services/authAPI'
+import { toast } from 'react-hot-toast'
 import { useNotification } from '@/context/NotificationContext'
 
 const Signup = () => {
@@ -21,7 +24,16 @@ const Signup = () => {
   
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const location = useLocation()
   const { success, error: notifyError, showLoading, dismissLoading } = useNotification()
+  const { login: loginUser } = useAuthContext()
+  
+  // Get message and return path from navigation state
+  const message = location.state?.message || 'Join Organic Hub for fresh organic products'
+  const returnTo = location.state?.returnTo || '/'
+  
+  // Note: This is a demo implementation. User data is stored temporarily in localStorage
+  // and will be cleared when the page is refreshed or browser is closed.
   
   const handleChange = (e) => {
     setFormData({
@@ -33,46 +45,73 @@ const Signup = () => {
   
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setIsLoading(true)
     setError('')
-    
-    // Validation
+    setIsLoading(true)
+
+    // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match')
       setIsLoading(false)
       return
     }
-    
+
+    // Validate password length
     if (formData.password.length < 6) {
       setError('Password must be at least 6 characters long')
       setIsLoading(false)
       return
     }
-    
-    const toastId = showLoading('Creating your account...')
+
     try {
-      // Real API call
-      const payload = {
+      // Check if user already exists in localStorage
+      const existingUsers = JSON.parse(localStorage.getItem('users') || '[]')
+      const existingUser = existingUsers.find(user => user.email === formData.email)
+      
+      if (existingUser) {
+        setError('User with this email already exists')
+        setIsLoading(false)
+        return
+      }
+
+      // Create new user object
+      const newUser = {
+        _id: Date.now().toString(), // Simple ID generation
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
-        password: formData.password
+        password: formData.password, // In real app, this should be hashed
+        createdAt: new Date().toISOString(),
+        isActive: true,
+        role: 'user'
       }
-      await authAPI.signup(payload)
-      dismissLoading(toastId)
-      success('Account created. Please login to continue.')
-      navigate('/login')
-    } catch (err) {
-      dismissLoading(toastId)
-      const status = err?.response?.status
-      const msg = err?.response?.data?.message
-      if (status === 409 || /exists|already/i.test(msg || '')) {
-        // User already exists → prompt to login instead of failing
-        success('Account already exists. Please login.')
-        navigate('/login')
-        return
+
+      // Save to localStorage
+      existingUsers.push(newUser)
+      localStorage.setItem('users', JSON.stringify(existingUsers))
+      
+      // Create auth data for automatic login
+      const token = btoa(JSON.stringify({ userId: newUser._id, email: newUser.email }))
+      const authData = {
+        user: {
+          _id: newUser._id,
+          name: newUser.name,
+          email: newUser.email,
+          phone: newUser.phone,
+          role: newUser.role
+        },
+        token: token
       }
-      notifyError(msg || 'Signup failed. Please try again.')
+      
+      // Automatically log in the user
+      loginUser(authData)
+      
+      toast.success('Account created successfully! You are now logged in.')
+      
+      // Navigate directly to the intended page
+      navigate(returnTo)
+    } catch (error) {
+      console.error('Signup error:', error)
+      setError('Signup failed. Please try again.')
     } finally {
       setIsLoading(false)
     }
@@ -98,8 +137,27 @@ const Signup = () => {
             Create Account
           </h2>
           <p className="mt-2 text-sm text-gray-600 font-body">
-            Join Organic Hub for fresh organic products
+            {message}
           </p>
+          
+
+          
+          {/* Show cart context if user was trying to add items */}
+          {location.state?.returnTo && location.state.returnTo !== '/' && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="mt-4 p-3 bg-green-50 border border-green-200 rounded-xl flex items-center gap-2 justify-center"
+            >
+              <ShoppingCart className="w-4 h-4 text-green-600" />
+              <span className="text-sm text-green-700 font-accent">
+                {location.state.returnTo === '/checkout' 
+                  ? 'After creating your account, you can complete your purchase'
+                  : 'After creating your account, you\'ll be able to add items to your cart'
+                }
+              </span>
+            </motion.div>
+          )}
         </motion.div>
         
         <motion.form
@@ -283,6 +341,7 @@ const Signup = () => {
               Already have an account?{' '}
               <Link
                 to="/login"
+                state={{ message: 'Welcome back! Please sign in to continue shopping', returnTo }}
                 className="font-medium text-green-600 hover:text-green-500 font-accent transition-colors duration-200"
               >
                 Sign in

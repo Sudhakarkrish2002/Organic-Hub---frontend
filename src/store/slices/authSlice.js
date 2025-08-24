@@ -2,16 +2,51 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import authAPI from '@/services/authAPI'
 
+// Safe localStorage access
+const getStoredToken = () => {
+  if (typeof window !== 'undefined') {
+    try {
+      return localStorage.getItem('token')
+    } catch (error) {
+      console.error('Error accessing localStorage:', error)
+      return null
+    }
+  }
+  return null
+}
+
 // Async thunks
 export const loginUser = createAsyncThunk(
   'auth/login',
   async (credentials, { rejectWithValue }) => {
     try {
-      const response = await authAPI.login(credentials)
-      localStorage.setItem('token', response.data.token)
-      return response.data
+      // Get users from localStorage
+      const users = JSON.parse(localStorage.getItem('users') || '[]')
+      const user = users.find(u => u.email === credentials.email && u.password === credentials.password)
+      
+      if (!user) {
+        throw new Error('Invalid credentials')
+      }
+
+      // Create a simple token
+      const token = btoa(JSON.stringify({ userId: user._id, email: user.email }))
+      
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('token', token)
+      }
+      
+      return {
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          role: user.role
+        },
+        token: token
+      }
     } catch (error) {
-      return rejectWithValue(error.response.data.message)
+      return rejectWithValue(error.message || 'Login failed')
     }
   }
 )
@@ -20,11 +55,33 @@ export const signupUser = createAsyncThunk(
   'auth/signup',
   async (userData, { rejectWithValue }) => {
     try {
-      const response = await authAPI.signup(userData)
-      localStorage.setItem('token', response.data.token)
-      return response.data
+      // Check if user already exists
+      const existingUsers = JSON.parse(localStorage.getItem('users') || '[]')
+      const existingUser = existingUsers.find(user => user.email === userData.email)
+      
+      if (existingUser) {
+        throw new Error('User with this email already exists')
+      }
+
+      // Create new user
+      const newUser = {
+        _id: Date.now().toString(),
+        name: userData.name,
+        email: userData.email,
+        phone: userData.phone,
+        password: userData.password,
+        createdAt: new Date().toISOString(),
+        isActive: true,
+        role: 'user'
+      }
+
+      // Save to localStorage
+      existingUsers.push(newUser)
+      localStorage.setItem('users', JSON.stringify(existingUsers))
+      
+      return { message: 'Account created successfully' }
     } catch (error) {
-      return rejectWithValue(error.response.data.message)
+      return rejectWithValue(error.message || 'Signup failed')
     }
   }
 )
@@ -33,7 +90,7 @@ const authSlice = createSlice({
   name: 'auth',
   initialState: {
     user: null,
-    token: localStorage.getItem('token'),
+    token: getStoredToken(),
     isAuthenticated: false,
     loading: false,
     error: null,
@@ -43,16 +100,28 @@ const authSlice = createSlice({
       state.user = action.payload.user
       state.token = action.payload.token
       state.isAuthenticated = true
-      localStorage.setItem('token', action.payload.token)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('token', action.payload.token)
+      }
     },
     logout: (state) => {
-      localStorage.removeItem('token')
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('token')
+      }
       state.user = null
       state.token = null
       state.isAuthenticated = false
     },
     clearError: (state) => {
       state.error = null
+    },
+    initializeAuth: (state) => {
+      const token = getStoredToken()
+      if (token) {
+        state.token = token
+        // Note: isAuthenticated will be set to true after token verification
+        // This should be handled by the AuthContext
+      }
     },
   },
   extraReducers: (builder) => {
@@ -77,9 +146,8 @@ const authSlice = createSlice({
       })
       .addCase(signupUser.fulfilled, (state, action) => {
         state.loading = false
-        state.user = action.payload.user
-        state.token = action.payload.token
-        state.isAuthenticated = true
+        // Don't automatically log in after signup
+        // User will be redirected to login page
       })
       .addCase(signupUser.rejected, (state, action) => {
         state.loading = false
@@ -88,5 +156,5 @@ const authSlice = createSlice({
   },
 })
 
-export const { login, logout, clearError } = authSlice.actions
+export const { login, logout, clearError, initializeAuth } = authSlice.actions
 export default authSlice.reducer

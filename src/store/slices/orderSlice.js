@@ -32,9 +32,35 @@ export const createOrder = createAsyncThunk(
   'orders/createOrder',
   async (orderData, { rejectWithValue }) => {
     try {
+      console.log('🔄 Creating order in slice...')
       const response = await orderAPI.createOrder(orderData)
-      return response.data
+      console.log('📦 API response in slice:', response)
+      
+      // Handle both backend and local storage response formats
+      if (response && response.data) {
+        console.log('✅ Returning response.data:', response.data)
+        return response.data
+      } else if (response && response.success) {
+        // Local storage fallback format
+        console.log('✅ Returning local storage response:', response)
+        return response
+      } else {
+        console.error('❌ Invalid response format:', response)
+        throw new Error('Invalid response format')
+      }
     } catch (error) {
+      console.error('❌ Error in createOrder slice:', error)
+      // If it's a network error, the API should have already fallen back to local storage
+      // Only reject if it's a genuine error, not a fallback scenario
+      if (error.message === 'Failed to create order locally') {
+        return rejectWithValue('Failed to create order')
+      }
+      
+      // Check if we have a successful response from local storage fallback
+      if (error.response && error.response.data) {
+        return error.response.data
+      }
+      
       return rejectWithValue(error.response?.data?.message || 'Failed to create order')
     }
   }

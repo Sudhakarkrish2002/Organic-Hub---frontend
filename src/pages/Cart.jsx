@@ -1,14 +1,18 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ShoppingBag, ArrowLeft, Trash2 } from 'lucide-react'
+import { ShoppingBag, ArrowLeft, Trash2, User, AlertCircle, Lock } from 'lucide-react'
 import useCart from '@/hooks/useCart.jsx'
 import CartItem from '@/components/Cart/CartItem'
 import CartSummary from '@/components/Cart/CartSummary'
 import Button from '@/components/UI/Button'
+import { useAuthContext } from '@/context/AuthContext'
+import { useSelector } from 'react-redux'
 
 const Cart = () => {
   const { items, totalItems, totalPrice, totalSavings, clearAllItems } = useCart()
+  const { isAuthenticated } = useAuthContext()
+  const { isGuest } = useSelector((state) => state.cart)
   
   if (items.length === 0) {
     return (
@@ -50,10 +54,44 @@ const Cart = () => {
               to="/products" 
               className="flex items-center gap-2 text-green-600 hover:text-green-700 transition-colors font-accent text-sm sm:text-base"
             >
-              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:w-5" />
               Continue Shopping
             </Link>
           </div>
+          
+          {/* Guest User Warning */}
+          {isGuest && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6 bg-amber-50 border border-amber-200 rounded-xl p-4 sm:p-6"
+            >
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-amber-100 rounded-full">
+                  <AlertCircle className="w-5 h-5 text-amber-600" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-amber-800 mb-2">Guest Cart - Sign In to Save</h3>
+                  <p className="text-amber-700 text-sm mb-3">
+                    You're currently browsing as a guest. Your cart items will be saved when you sign in or create an account.
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Link to="/login">
+                      <Button className="bg-amber-600 hover:bg-amber-700 text-white text-sm px-4 py-2">
+                        <User className="w-4 h-4 mr-2" />
+                        Sign In
+                      </Button>
+                    </Link>
+                    <Link to="/signup">
+                      <Button className="bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2">
+                        Create Account
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
             {/* Cart Items */}
@@ -61,9 +99,17 @@ const Cart = () => {
               <div className="bg-white rounded-xl sm:rounded-2xl shadow-md border border-green-100">
                 <div className="p-4 sm:p-6 border-b border-green-100">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
-                    <h1 className="text-lg sm:text-xl md:text-2xl font-heading text-green-800">
-                      Shopping Cart ({totalItems} items)
-                    </h1>
+                    <div className="flex items-center gap-3">
+                      <h1 className="text-lg sm:text-xl md:text-2xl font-heading text-green-800">
+                        Shopping Cart ({totalItems} items)
+                      </h1>
+                      {isGuest && (
+                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-amber-100 text-amber-700 text-xs rounded-full">
+                          <User className="w-3 h-3" />
+                          Guest
+                        </span>
+                      )}
+                    </div>
                     <button
                       onClick={clearAllItems}
                       className="flex items-center gap-2 text-red-600 hover:text-red-700 text-xs sm:text-sm transition-colors font-accent self-start sm:self-auto"

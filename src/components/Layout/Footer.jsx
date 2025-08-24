@@ -5,18 +5,18 @@ import { Leaf, Facebook, Twitter, Instagram, Phone, Mail, MapPin, ArrowRight } f
 const Footer = () => {
   return (
     <footer className="bg-gradient-to-br from-green-800 to-green-900 text-white w-full">
-      <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-8 sm:py-12 lg:py-16">
+      <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 py-4 sm:py-6 lg:py-8">
         <div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 lg:gap-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
             {/* Company Info */}
             <div className="sm:col-span-2 md:col-span-1">
-              <div className="flex items-center space-x-2 sm:space-x-3 mb-3 sm:mb-4">
+              <div className="flex items-center space-x-2 sm:space-x-3 mb-2 sm:mb-3">
                 <div className="bg-gradient-to-br from-green-500 to-green-600 p-2 sm:p-3 rounded-xl sm:rounded-2xl shadow-lg">
                   <Leaf className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                 </div>
                 <span className="text-xl sm:text-2xl font-display">Organic Hub</span>
               </div>
-              <p className="text-green-100 mb-3 sm:mb-4 leading-relaxed font-body text-sm sm:text-base">
+              <p className="text-green-100 mb-2 sm:mb-3 leading-relaxed font-body text-sm sm:text-base">
                 Fresh, organic, and healthy products delivered right to your doorstep. 
                 Supporting sustainable farming and your healthy lifestyle.
               </p>
@@ -35,8 +35,8 @@ const Footer = () => {
             
             {/* Quick Links */}
             <div>
-              <h3 className="text-lg sm:text-xl font-heading mb-3 sm:mb-4">Quick Links</h3>
-              <ul className="space-y-2">
+              <h3 className="text-lg sm:text-xl font-heading mb-2 sm:mb-3">Quick Links</h3>
+              <ul className="space-y-1 sm:space-y-2">
                 <li>
                   <Link to="/products" className="text-green-100 hover:text-white transition-all duration-200 font-accent text-sm sm:text-base hover:translate-x-2 inline-block" onClick={() => window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })}>
                     All Products
@@ -67,8 +67,8 @@ const Footer = () => {
             
             {/* Categories */}
             <div>
-              <h3 className="text-lg sm:text-xl font-heading mb-3 sm:mb-4">Categories</h3>
-              <ul className="space-y-2">
+              <h3 className="text-lg sm:text-xl font-heading mb-2 sm:mb-3">Categories</h3>
+              <ul className="space-y-1 sm:space-y-2">
                 <li>
                   <Link to="/products?category=vegetables" className="text-green-100 hover:text-white transition-all duration-200 font-accent text-sm sm:text-base hover:translate-x-2 inline-block flex items-center gap-2" onClick={() => window.scrollTo({ top: 0, left: 0, behavior: 'smooth' })}>
                     <span>🥦</span>
@@ -104,8 +104,8 @@ const Footer = () => {
             
             {/* Contact Info */}
             <div>
-              <h3 className="text-lg sm:text-xl font-heading mb-3 sm:mb-4">Contact Us</h3>
-              <ul className="space-y-2 sm:space-y-3">
+              <h3 className="text-lg sm:text-xl font-heading mb-2 sm:mb-3">Contact Us</h3>
+              <ul className="space-y-1 sm:space-y-2">
                 <li className="flex items-center space-x-2 sm:space-x-3">
                   <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-green-300 flex-shrink-0" />
                   <span className="text-green-100 font-accent text-sm sm:text-base">+91 98765 43210</span>
@@ -124,7 +124,7 @@ const Footer = () => {
               </ul>
               
               {/* Newsletter Signup */}
-              <div className="mt-4 sm:mt-6">
+              <div className="mt-3 sm:mt-4">
                 <h4 className="text-sm sm:text-base font-heading mb-2">Newsletter</h4>
                 <div className="flex">
                   <input
@@ -140,7 +140,7 @@ const Footer = () => {
             </div>
           </div>
           
-          <div className="border-t border-green-700 mt-6 sm:mt-8 pt-4 sm:pt-6">
+          <div className="border-t border-green-700 mt-4 sm:mt-6 pt-3 sm:pt-4">
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
               <p className="text-green-200 font-body text-sm sm:text-base text-center sm:text-left">
                 © 2024 Organic Hub. All rights reserved.

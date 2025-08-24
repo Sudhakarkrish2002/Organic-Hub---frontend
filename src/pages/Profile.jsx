@@ -1,57 +1,73 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { User, Mail, Phone, MapPin, Edit, Save, X, Shield, Package, Heart, Settings } from 'lucide-react'
-import { useSelector } from 'react-redux'
+import { User, Mail, Phone, MapPin, Edit, Package, Clock, CheckCircle, Truck, Eye } from 'lucide-react'
+import { useSelector, useDispatch } from 'react-redux'
 import { Link } from 'react-router-dom'
+import useOrders from '@/hooks/useOrders'
+import Button from '@/components/UI/Button'
+import toast from 'react-hot-toast'
 
 const Profile = () => {
   const { user } = useSelector((state) => state.auth)
-  const [isEditing, setIsEditing] = useState(false)
-  const [formData, setFormData] = useState({
-    name: user?.name || '',
-    email: user?.email || '',
-    phone: user?.phone || '',
-    address: user?.address || '',
-    city: user?.city || '',
-    state: user?.state || '',
-    pincode: user?.pincode || ''
-  })
+  const dispatch = useDispatch()
+  const { orders, loading, loadOrders } = useOrders()
+  const [activeTab, setActiveTab] = useState('profile')
+  const [selectedStatus, setSelectedStatus] = useState('all')
 
-  const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    })
+  useEffect(() => {
+    // Load user's orders
+    loadOrders()
+  }, [loadOrders])
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'pending': return 'text-yellow-600 bg-yellow-100'
+      case 'processing': return 'text-blue-600 bg-blue-100'
+      case 'shipped': return 'text-purple-600 bg-purple-100'
+      case 'delivered': return 'text-green-600 bg-green-100'
+      case 'cancelled': return 'text-red-600 bg-red-100'
+      default: return 'text-gray-600 bg-gray-100'
+    }
   }
 
-  const handleSave = () => {
-    // TODO: Implement save functionality
-    setIsEditing(false)
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case 'pending': return Clock
+      case 'processing': return Package
+      case 'shipped': return Truck
+      case 'delivered': return CheckCircle
+      case 'cancelled': return Package
+      default: return Package
+    }
   }
 
-  const handleCancel = () => {
-    setFormData({
-      name: user?.name || '',
-      email: user?.email || '',
-      phone: user?.phone || '',
-      address: user?.address || '',
-      city: user?.city || '',
-      state: user?.state || '',
-      pincode: user?.pincode || ''
-    })
-    setIsEditing(false)
+  const getStatusText = (status) => {
+    switch (status) {
+      case 'pending': return 'Pending'
+      case 'processing': return 'Processing'
+      case 'shipped': return 'Shipped'
+      case 'delivered': return 'Delivered'
+      case 'cancelled': return 'Cancelled'
+      default: return 'Unknown'
+    }
   }
 
-  const profileStats = [
-    { label: 'Total Orders', value: '12', icon: Package, color: 'text-blue-600' },
-    { label: 'Wishlist Items', value: '8', icon: Heart, color: 'text-red-600' },
-    { label: 'Account Status', value: 'Active', icon: Shield, color: 'text-green-600' }
+  const filteredOrders = selectedStatus === 'all' 
+    ? orders 
+    : orders.filter(order => order.orderStatus === selectedStatus)
+
+  const statusFilters = [
+    { value: 'all', label: 'All Orders', count: orders.length },
+    { value: 'pending', label: 'Pending', count: orders.filter(o => o.orderStatus === 'pending').length },
+    { value: 'processing', label: 'Processing', count: orders.filter(o => o.orderStatus === 'processing').length },
+    { value: 'shipped', label: 'Shipped', count: orders.filter(o => o.orderStatus === 'shipped').length },
+    { value: 'delivered', label: 'Delivered', count: orders.filter(o => o.orderStatus === 'delivered').length }
   ]
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 py-8 sm:py-12">
       <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -63,249 +79,275 @@ const Profile = () => {
               My Profile
             </h1>
             <p className="text-base sm:text-lg text-gray-600 font-body">
-              Manage your account information and preferences
+              Manage your account and view your orders
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
-            {/* Profile Stats */}
-            <div className="lg:col-span-1">
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="bg-white rounded-xl sm:rounded-2xl shadow-lg p-6"
+          {/* Tab Navigation */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="bg-white rounded-xl shadow-lg p-4 mb-8"
+          >
+            <div className="flex flex-wrap gap-2 sm:gap-4">
+              <button
+                onClick={() => setActiveTab('profile')}
+                className={`px-6 py-3 rounded-lg font-accent text-sm transition-all duration-200 ${
+                  activeTab === 'profile'
+                    ? 'bg-green-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-green-100 hover:text-green-700'
+                }`}
               >
-                <div className="text-center mb-6">
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <User className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
+                Profile Information
+              </button>
+              <button
+                onClick={() => setActiveTab('orders')}
+                className={`px-6 py-3 rounded-lg font-accent text-sm transition-all duration-200 ${
+                  activeTab === 'orders'
+                    ? 'bg-green-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-green-100 hover:text-green-700'
+                }`}
+              >
+                My Orders ({orders.length})
+              </button>
+            </div>
+          </motion.div>
+
+          {/* Tab Content */}
+          {activeTab === 'profile' && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="bg-white rounded-xl shadow-lg p-6 sm:p-8"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-heading text-green-800">Profile Information</h2>
+                <Button variant="outline" size="sm">
+                  <Edit className="w-4 h-4 mr-2" />
+                  Edit Profile
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+                  <div className="p-3 bg-green-100 rounded-full">
+                    <User className="w-6 h-6 text-green-600" />
                   </div>
-                  <h3 className="text-xl sm:text-2xl font-heading text-green-800 mb-2">
-                    {user?.name || 'User Name'}
-                  </h3>
-                  <p className="text-gray-600 font-body">{user?.email}</p>
+                  <div>
+                    <p className="text-sm text-gray-600 font-body">Full Name</p>
+                    <p className="font-heading text-green-800">{user?.name || 'Not provided'}</p>
+                  </div>
                 </div>
 
-                <div className="space-y-4">
-                  {profileStats.map((stat, index) => (
-                    <div key={stat.label} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <stat.icon className={`w-5 h-5 ${stat.color}`} />
-                        <span className="font-accent text-sm text-gray-700">{stat.label}</span>
+                <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+                  <div className="p-3 bg-green-100 rounded-full">
+                    <Mail className="w-6 h-6 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600 font-body">Email Address</p>
+                    <p className="font-heading text-green-800">{user?.email || 'Not provided'}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+                  <div className="p-3 bg-green-100 rounded-full">
+                    <Phone className="w-6 h-6 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600 font-body">Phone Number</p>
+                    <p className="font-heading text-green-800">{user?.phone || 'Not provided'}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+                  <div className="p-3 bg-green-100 rounded-full">
+                    <MapPin className="w-6 h-6 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-600 font-body">Address</p>
+                    <p className="font-heading text-green-800">{user?.address || 'Not provided'}</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === 'orders' && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="space-y-6"
+            >
+              {/* Order Stats */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                {statusFilters.slice(1).map((filter) => (
+                  <div key={filter.value} className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600 font-body">{filter.label}</p>
+                        <p className="text-2xl sm:text-3xl font-bold text-green-800">{filter.count}</p>
                       </div>
-                      <span className="font-semibold text-green-800">{stat.value}</span>
+                      <div className={`p-3 rounded-full ${getStatusColor(filter.value)}`}>
+                        {React.createElement(getStatusIcon(filter.value), { className: 'w-6 h-6' })}
+                      </div>
                     </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Order Filters */}
+              <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
+                <div className="flex flex-wrap gap-2 sm:gap-4">
+                  {statusFilters.map((filter) => (
+                    <button
+                      key={filter.value}
+                      onClick={() => setSelectedStatus(filter.value)}
+                      className={`px-4 py-2 rounded-lg font-accent text-sm transition-all duration-200 ${
+                        selectedStatus === filter.value
+                          ? 'bg-green-600 text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-green-100 hover:text-green-700'
+                      }`}
+                    >
+                      {filter.label} ({filter.count})
+                    </button>
                   ))}
                 </div>
+              </div>
 
-                <div className="mt-6 space-y-3">
-                  <Link
-                    to="/orders"
-                    className="flex items-center gap-3 p-3 text-green-700 hover:bg-green-50 rounded-lg transition-colors duration-200 font-accent"
+              {/* Orders List */}
+              <div className="space-y-6">
+                {loading ? (
+                  <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
+                    <p className="mt-4 text-gray-600">Loading your orders...</p>
+                  </div>
+                ) : filteredOrders.length > 0 ? (
+                  filteredOrders.map((order, index) => (
+                    <motion.div
+                      key={order._id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: index * 0.1 }}
+                      className="bg-white rounded-xl shadow-lg overflow-hidden"
+                    >
+                      {/* Order Header */}
+                      <div className="p-4 sm:p-6 border-b border-gray-100">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                          <div className="flex items-center gap-4">
+                            <div className={`p-3 rounded-full ${getStatusColor(order.orderStatus)}`}>
+                              {React.createElement(getStatusIcon(order.orderStatus), { className: 'w-6 h-6' })}
+                            </div>
+                            <div>
+                              <h3 className="text-lg font-heading text-green-800">{order.orderNumber}</h3>
+                              <p className="text-sm text-gray-600 font-body">
+                                Ordered on {new Date(order.createdAt).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className={`px-3 py-1 rounded-full text-sm font-accent ${getStatusColor(order.orderStatus)}`}>
+                              {getStatusText(order.orderStatus)}
+                            </span>
+                            <Link
+                              to={`/orders/${order._id}`}
+                              className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200 font-accent text-sm"
+                            >
+                              <Eye className="w-4 h-4" />
+                              View Details
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Order Items */}
+                      <div className="p-4 sm:p-6">
+                        <div className="space-y-4">
+                          {order.items && order.items.map((item, itemIndex) => (
+                            <div key={itemIndex} className="flex items-center gap-4">
+                              <img
+                                src={item.product?.images?.[0] || '/placeholder-product.jpg'}
+                                alt={item.name}
+                                className="w-16 h-16 object-cover rounded-lg border border-gray-200"
+                              />
+                              <div className="flex-1">
+                                <h4 className="font-heading text-green-800">{item.name}</h4>
+                                <p className="text-sm text-gray-600 font-body">
+                                  Quantity: {item.quantity} × ₹{item.price}
+                                </p>
+                              </div>
+                              <div className="text-right">
+                                <p className="font-accent text-green-700">₹{item.quantity * item.price}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Order Summary */}
+                        <div className="mt-6 pt-6 border-t border-gray-100">
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div className="flex items-center gap-3">
+                              <MapPin className="w-5 h-5 text-gray-400" />
+                              <div>
+                                <p className="text-sm font-medium text-gray-700">Delivery Address</p>
+                                <p className="text-xs text-gray-600 font-body">
+                                  {order.shippingAddress?.street}<br />
+                                  {order.shippingAddress?.city}, {order.shippingAddress?.state}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Package className="w-5 h-5 text-gray-400" />
+                              <div>
+                                <p className="text-sm font-medium text-gray-700">Payment Method</p>
+                                <p className="text-xs text-gray-600 font-body capitalize">
+                                  {order.paymentMethod} - {order.paymentStatus}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <div className="w-5 h-5 text-gray-400">₹</div>
+                              <div>
+                                <p className="text-sm font-medium text-gray-700">Total Amount</p>
+                                <p className="text-lg font-bold text-green-700">₹{order.totalAmount}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))
+                ) : (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="bg-white rounded-xl shadow-lg p-8 text-center"
                   >
-                    <Package className="w-5 h-5" />
-                    My Orders
-                  </Link>
-                  <Link
-                    to="/wishlist"
-                    className="flex items-center gap-3 p-3 text-green-700 hover:bg-green-50 rounded-lg transition-colors duration-200 font-accent"
-                  >
-                    <Heart className="w-5 h-5" />
-                    Wishlist
-                  </Link>
-                  <Link
-                    to="/settings"
-                    className="flex items-center gap-3 p-3 text-green-700 hover:bg-green-50 rounded-lg transition-colors duration-200 font-accent"
-                  >
-                    <Settings className="w-5 h-5" />
-                    Settings
-                  </Link>
-                </div>
-              </motion.div>
-            </div>
-
-            {/* Profile Form */}
-            <div className="lg:col-span-2">
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                className="bg-white rounded-xl sm:rounded-2xl shadow-lg p-6 sm:p-8"
-              >
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl sm:text-2xl font-heading text-green-800">
-                    Personal Information
-                  </h2>
-                  <div className="flex gap-2">
-                    {isEditing ? (
-                      <>
-                        <button
-                          onClick={handleSave}
-                          className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200 font-accent text-sm"
-                        >
-                          <Save className="w-4 h-4" />
-                          Save
-                        </button>
-                        <button
-                          onClick={handleCancel}
-                          className="flex items-center gap-2 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors duration-200 font-accent text-sm"
-                        >
-                          <X className="w-4 h-4" />
-                          Cancel
-                        </button>
-                      </>
-                    ) : (
-                      <button
-                        onClick={() => setIsEditing(true)}
-                        className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors duration-200 font-accent text-sm"
-                      >
-                        <Edit className="w-4 h-4" />
-                        Edit
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Name */}
-                  <div>
-                    <label className="block text-sm font-medium text-green-700 mb-2">
-                      Full Name
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        disabled={!isEditing}
-                        className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 font-body disabled:bg-gray-100"
-                        placeholder="Enter your full name"
-                      />
-                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    </div>
-                  </div>
-
-                  {/* Email */}
-                  <div>
-                    <label className="block text-sm font-medium text-green-700 mb-2">
-                      Email Address
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        disabled={!isEditing}
-                        className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 font-body disabled:bg-gray-100"
-                        placeholder="Enter your email"
-                      />
-                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    </div>
-                  </div>
-
-                  {/* Phone */}
-                  <div>
-                    <label className="block text-sm font-medium text-green-700 mb-2">
-                      Phone Number
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="tel"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        disabled={!isEditing}
-                        className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 font-body disabled:bg-gray-100"
-                        placeholder="Enter your phone number"
-                      />
-                      <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    </div>
-                  </div>
-
-                  {/* Address */}
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-green-700 mb-2">
-                      Address
-                    </label>
-                    <div className="relative">
-                      <textarea
-                        name="address"
-                        value={formData.address}
-                        onChange={handleInputChange}
-                        disabled={!isEditing}
-                        rows="3"
-                        className="w-full px-4 py-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 font-body disabled:bg-gray-100 resize-none"
-                        placeholder="Enter your address"
-                      />
-                      <MapPin className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
-                    </div>
-                  </div>
-
-                  {/* City */}
-                  <div>
-                    <label className="block text-sm font-medium text-green-700 mb-2">
-                      City
-                    </label>
-                    <input
-                      type="text"
-                      name="city"
-                      value={formData.city}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 font-body disabled:bg-gray-100"
-                      placeholder="Enter your city"
-                    />
-                  </div>
-
-                  {/* State */}
-                  <div>
-                    <label className="block text-sm font-medium text-green-700 mb-2">
-                      State
-                    </label>
-                    <input
-                      type="text"
-                      name="state"
-                      value={formData.state}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 font-body disabled:bg-gray-100"
-                      placeholder="Enter your state"
-                    />
-                  </div>
-
-                  {/* Pincode */}
-                  <div>
-                    <label className="block text-sm font-medium text-green-700 mb-2">
-                      Pincode
-                    </label>
-                    <input
-                      type="text"
-                      name="pincode"
-                      value={formData.pincode}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 font-body disabled:bg-gray-100"
-                      placeholder="Enter pincode"
-                    />
-                  </div>
-                </div>
-
-                {isEditing && (
-                  <div className="mt-6 p-4 bg-green-50 rounded-lg">
-                    <p className="text-sm text-green-700 font-body">
-                      💡 Make sure to save your changes before leaving this page.
+                    <div className="text-6xl mb-4">📦</div>
+                    <h3 className="text-2xl font-heading text-green-800 mb-2">No orders found</h3>
+                    <p className="text-gray-600 font-body mb-6">
+                      {selectedStatus === 'all' 
+                        ? "You haven't placed any orders yet." 
+                        : `No ${selectedStatus} orders found.`
+                      }
                     </p>
-                  </div>
+                    <Link
+                      to="/products"
+                      className="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-xl transition-colors duration-200 font-accent"
+                    >
+                      Start Shopping
+                    </Link>
+                  </motion.div>
                 )}
-              </motion.div>
-            </div>
-          </div>
+              </div>
+            </motion.div>
+          )}
         </div>
       </div>
-  </div>
-)
+    </div>
+  )
 }
 
 export default Profile

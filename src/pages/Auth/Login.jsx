@@ -1,9 +1,12 @@
-import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { motion } from 'framer-motion'
-import { Eye, EyeOff, Mail, Lock, Leaf } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, Leaf, ShoppingCart } from 'lucide-react'
 import { login } from '@/store/slices/authSlice'
+import { useAuthContext } from '@/context/AuthContext'
+import authAPI from '@/services/authAPI'
+import { toast } from 'react-hot-toast'
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -11,11 +14,29 @@ const Login = () => {
     password: ''
   })
   const [showPassword, setShowPassword] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const location = useLocation()
+  const { login: loginUser } = useAuthContext()
+  
+  // Get message and return path from navigation state
+  const message = location.state?.message || 'Sign in to your Organic Hub account'
+  const returnTo = location.state?.returnTo || '/'
+  
+  // Check for remembered email on component mount
+  useEffect(() => {
+    const rememberedEmail = localStorage.getItem('rememberedEmail')
+    const isRemembered = localStorage.getItem('rememberMe') === 'true'
+    
+    if (rememberedEmail && isRemembered) {
+      setFormData(prev => ({ ...prev, email: rememberedEmail }))
+      setRememberMe(true)
+    }
+  }, [])
   
   const handleChange = (e) => {
     setFormData({
@@ -27,29 +48,58 @@ const Login = () => {
   
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setIsLoading(true)
     setError('')
-    
+    setIsLoading(true)
+
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Get users from localStorage
+      const users = JSON.parse(localStorage.getItem('users') || '[]')
+      const user = users.find(u => u.email === formData.email && u.password === formData.password)
       
-      // For demo purposes, accept any email/password
-      if (formData.email && formData.password) {
-        dispatch(login({
-          user: {
-            id: '1',
-            name: 'Demo User',
-            email: formData.email,
-            role: 'user'
-          },
-          token: 'demo-token'
-        }))
-        navigate('/')
-      } else {
-        setError('Please fill in all fields')
+      if (!user) {
+        setError('Invalid email or password. Please check your credentials.')
+        setIsLoading(false)
+        return
       }
-    } catch (err) {
+
+      // Check if user is active
+      if (!user.isActive) {
+        setError('Account is deactivated. Please contact support.')
+        setIsLoading(false)
+        return
+      }
+
+      // Create a simple token (in real app, this should be JWT)
+      const token = btoa(JSON.stringify({ userId: user._id, email: user.email }))
+      
+      // Create auth data
+      const authData = {
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          role: user.role
+        },
+        token: token
+      }
+      
+      // Login using AuthContext
+      loginUser(authData)
+      
+      // Save remember me preference
+      if (rememberMe) {
+        localStorage.setItem('rememberMe', 'true')
+        localStorage.setItem('rememberedEmail', formData.email)
+      } else {
+        localStorage.removeItem('rememberMe')
+        localStorage.removeItem('rememberedEmail')
+      }
+      
+      toast.success('Login successful!')
+      navigate(returnTo)
+    } catch (error) {
+      console.error('Login error:', error)
       setError('Login failed. Please try again.')
     } finally {
       setIsLoading(false)
@@ -76,8 +126,24 @@ const Login = () => {
             Welcome Back
           </h2>
           <p className="mt-2 text-sm text-gray-600 font-body">
-            Sign in to your Organic Hub account
+            {message}
           </p>
+          
+
+          
+          {/* Show cart context if user was trying to add items */}
+          {location.state?.returnTo && location.state.returnTo !== '/' && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="mt-4 p-3 bg-green-50 border border-green-200 rounded-xl flex items-center gap-2 justify-center"
+            >
+              <ShoppingCart className="w-4 h-4 text-green-600" />
+              <span className="text-sm text-green-700 font-accent">
+                After signing in, you'll be able to add items to your cart
+              </span>
+            </motion.div>
+          )}
         </motion.div>
         
         <motion.form
@@ -106,7 +172,7 @@ const Login = () => {
                   value={formData.email}
                   onChange={handleChange}
                   className="block w-full pl-10 pr-3 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 font-body text-base"
-                  placeholder="Enter your email"
+                  placeholder="Enter your email address"
                 />
               </div>
             </div>
@@ -144,6 +210,29 @@ const Login = () => {
                 </button>
               </div>
             </div>
+            
+            {/* Remember Me */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <input
+                  id="remember-me"
+                  name="remember-me"
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                />
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700 font-accent">
+                  Remember me
+                </label>
+              </div>
+              <Link
+                to="/forgot-password"
+                className="text-sm font-medium text-green-600 hover:text-green-500 font-accent transition-colors duration-200"
+              >
+                Forgot password?
+              </Link>
+            </div>
           </div>
           
           {/* Error Message */}
@@ -176,33 +265,19 @@ const Login = () => {
           </div>
           
           {/* Links */}
-          <div className="flex items-center justify-between text-sm">
-            <Link
-              to="/forgot-password"
-              className="font-medium text-green-600 hover:text-green-500 font-accent transition-colors duration-200"
-            >
-              Forgot password?
-            </Link>
-            <Link
-              to="/signup"
-              className="font-medium text-green-600 hover:text-green-500 font-accent transition-colors duration-200"
-            >
-              Signup
-            </Link>
+          <div className="text-center">
+            <p className="text-sm text-gray-600 font-accent">
+              Don't have an account?{' '}
+              <Link
+                to="/signup"
+                state={{ message: 'Create an account to start shopping', returnTo }}
+                className="font-medium text-green-600 hover:text-green-500 font-accent transition-colors duration-200"
+              >
+                Sign up
+              </Link>
+            </p>
           </div>
         </motion.form>
-        
-        {/* Demo Credentials */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-xl"
-        >
-          <p className="text-sm text-blue-700 font-accent text-center">
-            <strong>Demo:</strong> Use any email and password to login
-          </p>
-        </motion.div>
       </div>
     </div>
   )

@@ -35,10 +35,12 @@ const useOrders = () => {
   
   const placeOrder = async (orderData) => {
     try {
+      console.log('🔄 Dispatching createOrder...')
       const result = await dispatch(createOrder(orderData)).unwrap()
+      console.log('📦 Result from createOrder:', result)
       return result
     } catch (error) {
-      console.error('Failed to place order:', error)
+      console.error('❌ Failed to place order:', error)
       throw error
     }
   }

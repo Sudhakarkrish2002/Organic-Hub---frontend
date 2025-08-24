@@ -11,47 +11,50 @@ import Footer from './components/Layout/Footer'
 import CartBottomBar from './components/Cart/CartBottomBar'
 import CartTopButton from './components/Cart/CartTopButton'
 import { NotificationProvider } from '@/context/NotificationContext'
+import { AuthProvider } from '@/context/AuthContext'
 import './styles/globals.css'
 
 function App() {
   return (
     <Provider store={store}>
-      <NotificationProvider>
-      <Router
-        future={{
-          v7_startTransition: true,
-          v7_relativeSplatPath: true
-        }}
-      >
-        <div className="min-h-screen w-full bg-gradient-to-b from-green-50 to-white">
-          <Header />
-          <ScrollToTop behavior="smooth" />
-          <main className="w-full pb-16">
-            <AppRoutes />
-          </main>
-          <Footer />
-          <CartTopButton />
-          <CartBottomBar />
-          <Toaster
-            position="top-right"
-            toastOptions={{
-              duration: 4000,
-              style: {
-                background: '#ffffff',
-                color: '#166534',
-                border: '1px solid #dcfce7',
-              },
-              success: {
+      <AuthProvider>
+        <NotificationProvider>
+        <Router
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true
+          }}
+        >
+          <div className="min-h-screen w-full bg-gradient-to-b from-green-50 to-white">
+            <Header />
+            <ScrollToTop behavior="smooth" />
+            <main className="w-full pb-16">
+              <AppRoutes />
+            </main>
+            <Footer />
+            <CartTopButton />
+            <CartBottomBar />
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                duration: 4000,
                 style: {
-                  background: '#dcfce7',
+                  background: '#ffffff',
                   color: '#166534',
+                  border: '1px solid #dcfce7',
                 },
-              },
-            }}
-          />
-        </div>
-      </Router>
-      </NotificationProvider>
+                success: {
+                  style: {
+                    background: '#dcfce7',
+                    color: '#166534',
+                  },
+                },
+              }}
+            />
+          </div>
+        </Router>
+        </NotificationProvider>
+      </AuthProvider>
     </Provider>
   )
 }

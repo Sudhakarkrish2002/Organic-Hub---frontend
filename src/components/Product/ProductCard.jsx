@@ -5,10 +5,8 @@ import { motion } from 'framer-motion'
 import { ShoppingCart, Heart, Star } from 'lucide-react'
 import { addToCart } from '@/store/slices/cartSlice'
 import { aiImageUrl } from '@/utils/helpers'
-import { formatCurrency } from '@/utils/bulkCalculator'
 import useWishlist from '@/hooks/useWishlist'
 import Badge from '../UI/Badge'
-import Button from '../UI/Button'
 
 const ProductCard = ({ product, onAddToCart, onWishlist }) => {
   const dispatch = useDispatch()
@@ -16,6 +14,7 @@ const ProductCard = ({ product, onAddToCart, onWishlist }) => {
   
   // Local state for immediate UI feedback
   const [localWishlistState, setLocalWishlistState] = useState(null)
+  const [isAddingToCart, setIsAddingToCart] = useState(false)
   
   // Sync local state with actual wishlist state
   useEffect(() => {
@@ -25,13 +24,22 @@ const ProductCard = ({ product, onAddToCart, onWishlist }) => {
   // Use local state if available, otherwise fall back to hook state
   const isProductInWishlist = localWishlistState !== null ? localWishlistState : isInWishlist(product._id)
   
-  const handleAddToCart = (e) => {
+  const handleAddToCartClick = async (e) => {
     e.preventDefault()
     e.stopPropagation()
-    if (onAddToCart) {
-      onAddToCart(product)
-    } else {
-      dispatch(addToCart({ product, quantity: 1 }))
+    
+    setIsAddingToCart(true)
+    
+    try {
+      if (onAddToCart) {
+        onAddToCart(product)
+      } else {
+        dispatch(addToCart({ product, quantity: 1 }))
+      }
+    } catch (error) {
+      console.error('Error adding to cart:', error)
+    } finally {
+      setIsAddingToCart(false)
     }
   }
 
@@ -39,15 +47,18 @@ const ProductCard = ({ product, onAddToCart, onWishlist }) => {
     e.preventDefault()
     e.stopPropagation()
     
-    // Immediately toggle local state for instant UI feedback
-    const currentState = isProductInWishlist
-    setLocalWishlistState(!currentState)
-    
-    if (onWishlist) {
-      onWishlist(product)
-    } else {
-      // Fallback: use the hook directly if no onWishlist prop is provided
-      toggleWishlist(product)
+    try {
+      // Toggle local state for instant UI feedback
+      const currentState = isProductInWishlist
+      setLocalWishlistState(!currentState)
+      
+      if (onWishlist) {
+        onWishlist(product)
+      } else {
+        toggleWishlist(product)
+      }
+    } catch (error) {
+      console.error('Error toggling wishlist:', error)
     }
   }
   
@@ -101,14 +112,19 @@ const ProductCard = ({ product, onAddToCart, onWishlist }) => {
                 🌾 Grains
               </Badge>
             )}
-            {product.seasonal && (
-              <Badge variant={product.season || 'seasonal'} className="text-[10px]">
-                🌱 Seasonal
+            {product.category === 'dairy' && (
+              <Badge variant="dairy" className="text-[10px] bg-blue-100 text-blue-800 border-blue-200">
+                🥛 Dairy
               </Badge>
             )}
-            {product.bulkDiscount && (
-              <Badge variant="discount" className="text-[10px]">
-                Bulk Discount
+            {product.category === 'fruits' && (
+              <Badge variant="fruits" className="text-[10px] bg-red-100 text-red-800 border-red-200">
+                🍎 Fruits
+              </Badge>
+            )}
+            {product.category === 'vegetables' && (
+              <Badge variant="vegetables" className="text-[10px] bg-green-100 text-green-800 border-green-200">
+                🥬 Vegetables
               </Badge>
             )}
             {product.discount && (
@@ -195,11 +211,20 @@ const ProductCard = ({ product, onAddToCart, onWishlist }) => {
             
             {/* Add to Cart Button - Inside the card */}
             <button
-              onClick={handleAddToCart}
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 px-3 rounded-lg transition-all duration-200 text-xs sm:text-sm flex items-center justify-center gap-1 hover:shadow-sm transform hover:scale-[0.98] active:scale-95"
+              onClick={handleAddToCartClick}
+              disabled={isAddingToCart}
+              className={`w-full font-medium py-2.5 px-3 rounded-lg transition-all duration-200 text-xs sm:text-sm flex items-center justify-center gap-1 hover:shadow-sm transform hover:scale-[0.98] active:scale-95 ${
+                isAddingToCart
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-green-600 hover:bg-green-700 text-white'
+              }`}
             >
-              <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4" />
-              Add to Cart
+              {isAddingToCart ? (
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4" />
+              )}
+              {isAddingToCart ? 'Adding...' : 'Add to Cart'}
             </button>
           </div>
         </div>

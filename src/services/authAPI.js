@@ -6,7 +6,7 @@ const authAPI = {
   },
   
   signup: async (userData) => {
-    return await api.post('/auth/signup', userData)
+    return await api.post('/auth/register', userData)
   },
   
   forgotPassword: async (email) => {
@@ -18,7 +18,7 @@ const authAPI = {
   },
   
   getProfile: async () => {
-    return await api.get('/auth/profile')
+    return await api.get('/auth/me')
   },
   
   updateProfile: async (userData) => {
@@ -26,7 +26,7 @@ const authAPI = {
   },
   
   verifyToken: async () => {
-    return await api.get('/auth/verify-token')
+    return await api.get('/auth/me')
   }
 }
 

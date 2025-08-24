@@ -10,75 +10,9 @@ const Orders = () => {
   const { orders, loading, loadOrders } = useOrders()
   const [selectedStatus, setSelectedStatus] = useState('all')
 
-  // Sample orders data - replace with actual API call
-  const sampleOrders = [
-    {
-      _id: 'order-1',
-      orderNumber: 'OH-2024-001',
-      items: [
-        { name: 'Fresh Organic Tomatoes', quantity: 2, price: 120, image: 'https://images.unsplash.com/photo-1546094096-0df4bcaaa337?w=100&h=100&fit=crop' },
-        { name: 'Organic Bananas', quantity: 1, price: 80, image: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=100&h=100&fit=crop' }
-      ],
-      totalAmount: 320,
-      status: 'delivered',
-      orderDate: '2024-01-15',
-      deliveryDate: '2024-01-17',
-      shippingAddress: {
-        fullName: 'John Doe',
-        address: '123 Main Street',
-        city: 'Chennai',
-        state: 'Tamil Nadu',
-        pincode: '600001'
-      },
-      paymentMethod: 'razorpay',
-      paymentStatus: 'paid'
-    },
-    {
-      _id: 'order-2',
-      orderNumber: 'OH-2024-002',
-      items: [
-        { name: 'Fresh Spinach Leaves', quantity: 1, price: 60, image: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=100&h=100&fit=crop' },
-        { name: 'Organic Apples', quantity: 3, price: 200, image: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=100&h=100&fit=crop' }
-      ],
-      totalAmount: 660,
-      status: 'processing',
-      orderDate: '2024-01-18',
-      deliveryDate: '2024-01-20',
-      shippingAddress: {
-        fullName: 'John Doe',
-        address: '123 Main Street',
-        city: 'Chennai',
-        state: 'Tamil Nadu',
-        pincode: '600001'
-      },
-      paymentMethod: 'cod',
-      paymentStatus: 'pending'
-    },
-    {
-      _id: 'order-3',
-      orderNumber: 'OH-2024-003',
-      items: [
-        { name: 'Fresh Carrots', quantity: 2, price: 90, image: 'https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?w=100&h=100&fit=crop' }
-      ],
-      totalAmount: 180,
-      status: 'shipped',
-      orderDate: '2024-01-20',
-      deliveryDate: '2024-01-22',
-      shippingAddress: {
-        fullName: 'John Doe',
-        address: '123 Main Street',
-        city: 'Chennai',
-        state: 'Tamil Nadu',
-        pincode: '600001'
-      },
-      paymentMethod: 'razorpay',
-      paymentStatus: 'paid'
-    }
-  ]
-
   useEffect(() => {
-    // Load orders - replace with actual API call
-    loadOrders(sampleOrders)
+    // Load orders from backend
+    loadOrders()
   }, [loadOrders])
 
   const getStatusColor = (status) => {
@@ -116,15 +50,28 @@ const Orders = () => {
 
   const filteredOrders = selectedStatus === 'all' 
     ? orders 
-    : orders.filter(order => order.status === selectedStatus)
+    : orders.filter(order => order.orderStatus === selectedStatus)
 
   const statusFilters = [
     { value: 'all', label: 'All Orders', count: orders.length },
-    { value: 'pending', label: 'Pending', count: orders.filter(o => o.status === 'pending').length },
-    { value: 'processing', label: 'Processing', count: orders.filter(o => o.status === 'processing').length },
-    { value: 'shipped', label: 'Shipped', count: orders.filter(o => o.status === 'shipped').length },
-    { value: 'delivered', label: 'Delivered', count: orders.filter(o => o.status === 'delivered').length }
+    { value: 'pending', label: 'Pending', count: orders.filter(o => o.orderStatus === 'pending').length },
+    { value: 'processing', label: 'Processing', count: orders.filter(o => o.orderStatus === 'processing').length },
+    { value: 'shipped', label: 'Shipped', count: orders.filter(o => o.orderStatus === 'shipped').length },
+    { value: 'delivered', label: 'Delivered', count: orders.filter(o => o.orderStatus === 'delivered').length }
   ]
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 py-8 sm:py-12">
+        <div className="w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+          <div className="max-w-6xl mx-auto text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading your orders...</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 py-8 sm:py-12">
@@ -206,19 +153,19 @@ const Orders = () => {
                   <div className="p-4 sm:p-6 border-b border-gray-100">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                       <div className="flex items-center gap-4">
-                        <div className={`p-3 rounded-full ${getStatusColor(order.status)}`}>
-                          {React.createElement(getStatusIcon(order.status), { className: 'w-6 h-6' })}
+                        <div className={`p-3 rounded-full ${getStatusColor(order.orderStatus)}`}>
+                          {React.createElement(getStatusIcon(order.orderStatus), { className: 'w-6 h-6' })}
                         </div>
                         <div>
                           <h3 className="text-lg font-heading text-green-800">{order.orderNumber}</h3>
                           <p className="text-sm text-gray-600 font-body">
-                            Ordered on {new Date(order.orderDate).toLocaleDateString()}
+                            Ordered on {new Date(order.createdAt).toLocaleDateString()}
                           </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className={`px-3 py-1 rounded-full text-sm font-accent ${getStatusColor(order.status)}`}>
-                          {getStatusText(order.status)}
+                        <span className={`px-3 py-1 rounded-full text-sm font-accent ${getStatusColor(order.orderStatus)}`}>
+                          {getStatusText(order.orderStatus)}
                         </span>
                         <Link
                           to={`/orders/${order._id}`}
@@ -234,10 +181,10 @@ const Orders = () => {
                   {/* Order Items */}
                   <div className="p-4 sm:p-6">
                     <div className="space-y-4">
-                      {order.items.map((item, itemIndex) => (
+                      {order.items && order.items.map((item, itemIndex) => (
                         <div key={itemIndex} className="flex items-center gap-4">
                           <img
-                            src={item.image}
+                            src={item.product?.images?.[0] || '/placeholder-product.jpg'}
                             alt={item.name}
                             className="w-16 h-16 object-cover rounded-lg border border-gray-200"
                           />
@@ -262,17 +209,17 @@ const Orders = () => {
                           <div>
                             <p className="text-sm font-medium text-gray-700">Delivery Address</p>
                             <p className="text-xs text-gray-600 font-body">
-                              {order.shippingAddress.fullName}<br />
-                              {order.shippingAddress.address}, {order.shippingAddress.city}
+                              {order.shippingAddress?.street}<br />
+                              {order.shippingAddress?.city}, {order.shippingAddress?.state}
                             </p>
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
                           <Calendar className="w-5 h-5 text-gray-400" />
                           <div>
-                            <p className="text-sm font-medium text-gray-700">Expected Delivery</p>
-                            <p className="text-xs text-gray-600 font-body">
-                              {new Date(order.deliveryDate).toLocaleDateString()}
+                            <p className="text-sm font-medium text-gray-700">Payment Method</p>
+                            <p className="text-xs text-gray-600 font-body capitalize">
+                              {order.paymentMethod} - {order.paymentStatus}
                             </p>
                           </div>
                         </div>
@@ -313,8 +260,8 @@ const Orders = () => {
           </div>
         </div>
       </div>
-  </div>
-)
+    </div>
+  )
 }
 
 export default Orders

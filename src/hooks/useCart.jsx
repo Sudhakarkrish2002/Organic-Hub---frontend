@@ -11,22 +11,15 @@ const useCart = () => {
   
   const addItemToCart = (product, quantity = 1) => {
     dispatch(addToCart({ product, quantity }))
-    toast.custom((t) => (
-      <div className={`px-4 py-3 rounded-xl shadow-lg border ${t.visible ? 'animate-enter' : 'animate-leave'} bg-white border-green-200 text-green-800 flex items-center gap-3`}>
-        <span className="font-accent">{product.name} added to cart</span>
-        <button
-          onClick={() => { toast.dismiss(t.id); navigate('/cart') }}
-          className="ml-2 bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg text-sm"
-        >
-          View Cart
-        </button>
-      </div>
-    ))
+    toast.success(`${product.name} added to cart!`, { duration: 2000 })
   }
   
   const removeItemFromCart = (productId) => {
-    dispatch(removeFromCart(productId))
-    toast.success('Item removed from cart')
+    const item = items.find(item => item._id === productId || item.id === productId)
+    if (item) {
+      dispatch(removeFromCart(productId))
+      toast.success('Item removed from cart', { duration: 2000 })
+    }
   }
   
   const updateItemQuantity = (productId, quantity) => {
@@ -39,7 +32,7 @@ const useCart = () => {
   
   const clearAllItems = () => {
     dispatch(clearCart())
-    toast.success('Cart cleared')
+    toast.success('Cart cleared', { duration: 2000 })
   }
   
   const getItemQuantity = (productId) => {
