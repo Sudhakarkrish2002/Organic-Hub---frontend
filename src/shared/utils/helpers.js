@@ -3,9 +3,20 @@ export const sleep = (ms) => new Promise((res) => setTimeout(res, ms))
 
 // Build an AI-generated image URL (Pollinations) with size and optional seed
 export const aiImageUrl = (prompt, width = 1200, height = 600, seed = 42) => {
-  const base = 'https://image.pollinations.ai/prompt/'
-  const params = new URLSearchParams({ width: String(width), height: String(height), nologo: 'true', seed: String(seed) })
-  return `${base}${encodeURIComponent(prompt)}?${params.toString()}`
+  try {
+    const base = 'https://image.pollinations.ai/prompt/'
+    const params = new URLSearchParams({ 
+      width: String(width), 
+      height: String(height), 
+      nologo: 'true', 
+      seed: String(seed) 
+    })
+    return `${base}${encodeURIComponent(prompt)}?${params.toString()}`
+  } catch (error) {
+    console.warn('Error generating AI image URL:', error)
+    // Return a placeholder image URL
+    return `https://via.placeholder.com/${width}x${height}/16a34a/ffffff?text=Organic+Hub`
+  }
 }
 
 export const seasonalBannerAi = {

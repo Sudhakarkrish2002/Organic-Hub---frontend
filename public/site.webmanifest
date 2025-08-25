@@ -1,0 +1,17 @@
+{
+  "name": "Organic Hub",
+  "short_name": "Organic Hub",
+  "description": "Fresh organic products delivered to your doorstep",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "theme_color": "#22c55e",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "start_url": "/"
+}

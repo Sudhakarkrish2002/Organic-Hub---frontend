@@ -1,5 +1,6 @@
 // src/pages/Home.jsx
 import React from 'react'
+import banner from '/home-banner.png'
 import { motion } from 'framer-motion'
 import { ArrowRight, Leaf, Star, Truck, Shield, ShoppingCart } from 'lucide-react'
 import { Link } from 'react-router-dom'
@@ -10,11 +11,41 @@ const Home = () => {
   const { addItemToCart, isItemInCart } = useCart()
 
   const categories = [
-    { name: 'Vegetables', icon: '🥦', path: '/products?category=vegetables', img: aiImageUrl('fresh organic vegetables in basket, high detail, natural light', 600, 400, 101) },
-    { name: 'Fruits', icon: '🍎', path: '/products?category=fruits', img: aiImageUrl('fresh organic fruits assortment, apples berries citrus, colorful, realistic', 600, 400, 102) },
-    { name: 'Dairy', icon: '🥛', path: '/products?category=dairy', img: aiImageUrl('organic dairy milk and cheese on rustic table, soft lighting, photorealistic', 600, 400, 103) },
-    { name: 'Grains', icon: '🌾', path: '/products?category=grains', img: aiImageUrl('organic grains and rice in bowls, minimal aesthetic, top view', 600, 400, 104) },
-    { name: 'Natural', icon: '🍯', path: '/products?category=natural', img: aiImageUrl('organic honey and spices, warm tones, macro photography', 600, 400, 105) },
+    { 
+      name: 'Vegetables', 
+      icon: '🥦', 
+      path: '/products?category=vegetables', 
+      img: aiImageUrl('fresh organic vegetables in basket, high detail, natural light', 600, 400, 101),
+      fallbackColor: 'bg-green-500'
+    },
+    { 
+      name: 'Fruits', 
+      icon: '🍎', 
+      path: '/products?category=fruits', 
+      img: aiImageUrl('fresh organic fruits assortment, apples berries citrus, colorful, realistic', 600, 400, 102),
+      fallbackColor: 'bg-orange-500'
+    },
+    { 
+      name: 'Dairy', 
+      icon: '🥛', 
+      path: '/products?category=dairy', 
+      img: aiImageUrl('organic dairy milk and cheese on rustic table, soft lighting, photorealistic', 600, 400, 103),
+      fallbackColor: 'bg-blue-500'
+    },
+    { 
+      name: 'Grains', 
+      icon: '🌾', 
+      path: '/products?category=grains', 
+      img: aiImageUrl('organic grains and rice in bowls, minimal aesthetic, top view', 600, 400, 104),
+      fallbackColor: 'bg-yellow-500'
+    },
+    { 
+      name: 'Natural', 
+      icon: '🍯', 
+      path: '/products?category=natural', 
+      img: aiImageUrl('organic honey and spices, warm tones, macro photography', 600, 400, 105),
+      fallbackColor: 'bg-amber-500'
+    },
   ]
 
   const features = [
@@ -42,27 +73,22 @@ const Home = () => {
 
   return (
     <div className="min-h-screen w-full">
-      {/* Hero Section with Blur Banner */}
-      <section className="relative py-12 sm:py-16 md:py-20 lg:py-24 xl:py-32 w-full overflow-hidden">
-        {/* Background Image with Blur */}
+      {/* Hero Section with Home Banner */}
+      <section className="relative py-6 sm:py-8 md:py-10 lg:py-12 xl:py-16 w-full overflow-hidden min-h-[60vh] sm:min-h-[70vh] md:min-h-[80vh]">
+        {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <img
-            src={aiImageUrl('organic farm landscape, fresh vegetables, fruits, natural lighting, bokeh effect, professional photography', 1920, 1080, 201)}
-            alt="Organic Farm Landscape"
-            className="w-full h-full object-cover"
-            loading="lazy"
-            referrerPolicy="no-referrer"
-            onError={(e) => {
-              e.currentTarget.onerror = null
-              e.currentTarget.src = aiImageUrl('organic vegetables fruits farm, natural background', 1920, 1080, 202)
-            }}
+            src={banner}
+            alt="Organic Hub - Fresh Organic Products"
+            className="w-full h-full object-cover object-center"
+            loading="eager"
           />
-          {/* Overlay with blur effect */}
-          <div className="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>
+          {/* Light overlay for text readability */}
+          <div className="absolute inset-0 bg-black/20"></div>
         </div>
         
         {/* Content */}
-        <div className="relative z-10 w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+        <div className="relative z-10 w-full px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 flex items-center justify-center min-h-[60vh] sm:min-h-[70vh] md:min-h-[80vh]">
           <div className="text-center max-w-4xl lg:max-w-5xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -80,10 +106,10 @@ const Home = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-display text-white mb-4 sm:mb-6 lg:mb-8 leading-tight drop-shadow-2xl"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-display text-white mb-4 sm:mb-6 lg:mb-8 leading-tight drop-shadow-2xl font-bold"
             >
               Fresh Organic
-              <span className="block text-green-300">Products</span>
+              <span className="block text-green-300 drop-shadow-lg">Products</span>
             </motion.h1>
             
             <motion.p
@@ -175,7 +201,7 @@ const Home = () => {
               >
                 <Link to={category.path} className="block">
                   <div className="bg-white border-2 border-green-100 rounded-xl sm:rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105">
-                    <div className="aspect-[4/3] w-full overflow-hidden">
+                    <div className="aspect-[4/3] w-full overflow-hidden relative">
                       <img
                         src={category.img}
                         alt={category.name}
@@ -183,10 +209,21 @@ const Home = () => {
                         loading="lazy"
                         referrerPolicy="no-referrer"
                         onError={(e) => {
-                          e.currentTarget.onerror = null
-                          e.currentTarget.src = aiImageUrl('organic category placeholder, simple minimal background', 600, 400, 5)
+                          e.currentTarget.style.display = 'none'
+                          e.currentTarget.nextElementSibling.style.display = 'flex'
                         }}
+                        onLoad={(e) => {
+                          e.currentTarget.style.opacity = '1'
+                        }}
+                        style={{ opacity: 0, transition: 'opacity 0.5s ease-in-out' }}
                       />
+                      {/* Fallback colored background */}
+                      <div 
+                        className={`absolute inset-0 ${category.fallbackColor} flex items-center justify-center opacity-0 transition-opacity duration-500`}
+                        style={{ display: 'none' }}
+                      >
+                        <div className="text-6xl">{category.icon}</div>
+                      </div>
                     </div>
                     <div className="p-3 sm:p-4 md:p-6 text-center">
                       <div className="text-2xl sm:text-3xl md:text-4xl mb-2 sm:mb-3">{category.icon}</div>
