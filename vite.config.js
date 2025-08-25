@@ -18,7 +18,7 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/api': 'http://localhost:5000', // connect frontend → backend
+      '/api': 'https://organic-hub-backend-production.up.railway.app', // connect frontend → Railway backend
     },
   },
 })
