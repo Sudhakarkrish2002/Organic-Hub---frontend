@@ -10,6 +10,7 @@ import ScrollToTop from './shared/components/ScrollToTop'
 import Footer from './shared/components/Footer'
 import CartBottomBar from './features/cart/components/CartBottomBar'
 import CartTopButton from './features/cart/components/CartTopButton'
+import Chatbot from './shared/components/Chatbot'
 import { NotificationProvider } from './shared/context/NotificationContext'
 import { AuthProvider } from './features/auth/context/AuthContext'
 import './styles/globals.css'
@@ -34,6 +35,7 @@ function App() {
             <Footer />
             <CartTopButton />
             <CartBottomBar />
+            <Chatbot />
             <Toaster
               position="top-right"
               toastOptions={{

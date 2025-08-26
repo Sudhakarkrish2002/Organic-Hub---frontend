@@ -267,7 +267,7 @@ const Home = () => {
                 _id: 'home-2',
                 name: 'Organic Bananas',
                 price: 80,
-                image: aiImageUrl('organic yellow bananas, fresh, natural, high detail photography', 600, 600, 402)
+                image: aiImageUrl('fresh organic yellow bananas, ultra high definition, studio lighting, professional food photography, 8k resolution, crisp details, natural texture, golden yellow color, perfect ripeness', 800, 800, 402)
               },
               {
                 _id: 'home-3',
